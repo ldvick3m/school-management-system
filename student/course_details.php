@@ -205,17 +205,25 @@ if ($activeTopic) {
                 </div>
             <?php else: ?>
                 <!-- کارت ویدیوی تدریس مبحث -->
-                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card border-0 shadow-sm rounded-3 mb-4 video-card-container">
                     <div class="card-body">
                         <h5 class="fw-bold mb-3 text-secondary"><i class="bi bi-play-btn-fill text-primary me-1"></i>ویدیوی آموزشی تدریس</h5>
                         
                         <?php if ($activeTopic['video_path']): ?>
-                            <div class="text-center rounded border bg-black p-1 shadow-sm">
-                                <!-- پخش‌کننده ویدیوی استاندارد HTML5 -->
-                                <video class="w-100 rounded" controls style="max-height: 480px; background-color: black;">
-                                    <source src="<?= '../' . htmlspecialchars($activeTopic['video_path']) ?>" type="video/mp4">
-                                    مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
-                                </video>
+                            <div class="video-wrapper position-relative">
+                                <!-- دکمه بازگشت در بالای ویدیو (مخصوص موبایل) -->
+                                <div class="mobile-video-top-bar">
+                                    <a href="courses.php" class="mobile-video-back-btn">
+                                        <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </div>
+                                <div class="text-center rounded border bg-black p-1 shadow-sm">
+                                    <!-- پخش‌کننده ویدیوی استاندارد HTML5 -->
+                                    <video class="w-100 rounded" controls style="max-height: 480px; background-color: black;">
+                                        <source src="<?= '../' . htmlspecialchars($activeTopic['video_path']) ?>" type="video/mp4">
+                                        مرورگر شما از پخش مستقیم ویدیو پشتیبانی نمی‌کند.
+                                    </video>
+                                </div>
                             </div>
                         <?php else: ?>
                             <div class="alert alert-secondary py-4 text-center small border-0 mb-0">
@@ -481,16 +489,380 @@ if ($activeTopic) {
 </div>
 
 <?php if ($activeTopic): ?>
+
+<style>
+/* CSS موبایل مبحث درسی */
+@media (max-width: 991.98px) {
+    /* بالا بردن اولویت نمایش سایدبار روی همه المان‌ها شامل ویدیو و باتم‌بار */
+    .app-sidebar { z-index: 1100 !important; }
+
+    /* مخفی‌سازی هدرهای پیش‌فرض و حاشیه‌های اضافه */
+    .app-header { display: none !important; }
+    .container-fluid { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+    .card.text-white[style*="background-color: #4C1D95;"] { display: none !important; }
+    .app-content main { padding: 0 !important; }
+    
+    /* تنظیمات پخش‌کننده ویدیو چسبان در موبایل */
+    .video-card-container {
+        border-radius: 0 !important;
+        margin-bottom: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background-color: #000000 !important;
+    }
+    
+    .video-card-container .card-body {
+        padding: 0 !important;
+    }
+    
+    .video-card-container h5 {
+        display: none !important;
+    }
+    
+    .video-wrapper video {
+        border-radius: 0 !important;
+        max-height: 240px !important;
+    }
+    
+    /* دکمه‌های بازگشت ویدیو روی موبایل */
+    .mobile-video-top-bar {
+        display: block !important;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 1010;
+    }
+    
+    .mobile-video-back-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white !important;
+        text-decoration: none;
+        font-size: 1.1rem;
+    }
+
+    /* پنهان‌سازی سایدبار دسکتاپی سرفصل‌ها */
+    .col-lg-3 {
+        display: none !important;
+    }
+    
+    /* بزرگ‌سازی بدنه محتوا */
+    .col-lg-9 {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    /* دکمه‌های ناوبری تب‌ها به صورت خطی بدون شکست */
+    .custom-tabs {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        border-bottom: 1px solid var(--border) !important;
+        background-color: #ffffff !important;
+        position: sticky;
+        top: 240px; /* زیر ویدیو چسبان */
+        z-index: 999;
+        padding: 0 10px !important;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .custom-tabs::-webkit-scrollbar { display: none; }
+    
+    .custom-tabs .nav-link {
+        white-space: nowrap !important;
+        padding: 14px 18px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* پدینگ محتوا برای عدم تداخل با دکمه‌های شناور */
+    .tab-content {
+        padding: 20px 15px 90px 15px !important;
+    }
+    
+    /* دکمه‌های شناور موبایل */
+    .mobile-bottom-nav {
+        display: flex !important;
+    }
+}
+
+/* Bottom Navigation Bar سبک موبایلی */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    background-color: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+    z-index: 1040;
+    padding: 10px 24px;
+    justify-content: space-around;
+    align-items: center;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.nav-item-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8; /* خاکستری غیرفعال مشابه تصویر */
+    font-size: 0.72rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    padding: 6px 12px;
+    position: relative;
+    outline: none;
+}
+
+.nav-item-btn i {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+    transition: transform 0.2s ease;
+}
+
+.nav-item-btn:active i {
+    transform: scale(0.85);
+}
+
+.nav-item-btn.active {
+    color: var(--primary) !important; /* رنگ فعال آبی */
+}
+
+/* نقطه کوچک آبی زیر دکمه فعال مشابه تصویر */
+.nav-item-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    width: 5px;
+    height: 5px;
+    background-color: var(--primary);
+    border-radius: 50%;
+}
+
+/* باتم شیت‌ها (Bottom Sheets) */
+.bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+    z-index: 1060;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.bottom-sheet.show {
+    transform: translateY(0);
+}
+
+.bottom-sheet-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bottom-sheet-content {
+    padding: 20px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    flex-grow: 1;
+}
+.bottom-sheet-content::-webkit-scrollbar { display: none; }
+
+.bottom-sheet-drag-handle {
+    width: 44px;
+    height: 5px;
+    background-color: var(--border-strong);
+    border-radius: 99px;
+    margin: 10px auto 2px;
+    cursor: pointer;
+}
+
+/* پنهان‌سازی اسکرول‌بار مرورگر در موبایل */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+</style>
+
+<!-- اورلی بک‌دراپ باتم شیت‌ها -->
+<div id="sheet-overlay" onclick="closeAllSheets()"></div>
+
+<!-- باتم شیت سرفصل‌ها و مباحث -->
+<div id="chapters-sheet" class="bottom-sheet">
+    <div class="bottom-sheet-drag-handle" onclick="closeAllSheets()"></div>
+    <div class="bottom-sheet-header">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-list-ul me-1 text-primary"></i> سرفصل‌ها و مباحث درس</h5>
+        <button onclick="closeAllSheets()" class="btn-close" style="font-size:0.8rem;"></button>
+    </div>
+    <div class="bottom-sheet-content">
+        <div class="list-group list-group-flush">
+            <?php foreach ($topics as $tp): ?>
+                <a href="course_details.php?course_id=<?= $courseId ?>&allocation_id=<?= $allocationId ?>&topic_id=<?= $tp['id'] ?>" class="list-group-item list-group-item-action p-3 rounded-3 mb-2 border <?= $topicId == $tp['id'] ? 'active bg-light border-primary' : '' ?>">
+                    <div class="fw-bold small text-dark"><?= htmlspecialchars($tp['topic_title']) ?></div>
+                    <small class="text-secondary d-block mt-1"><i class="bi bi-calendar-event me-1"></i><?= to_shamsi($tp['created_at']) ?></small>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+
+<!-- باتم شیت یادداشت‌ها -->
+<div id="notes-sheet" class="bottom-sheet">
+    <div class="bottom-sheet-drag-handle" onclick="closeAllSheets()"></div>
+    <div class="bottom-sheet-header">
+        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-journal-text me-1 text-primary"></i> یادداشت‌های مبحث</h5>
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-primary btn-sm" id="btnNewTopicNoteMobile" style="font-size:0.8rem; padding: 4px 8px;">
+                <i class="bi bi-plus-lg"></i> جدید
+            </button>
+            <button onclick="closeAllSheets()" class="btn-close" style="font-size:0.8rem;"></button>
+        </div>
+    </div>
+    <div class="bottom-sheet-content bg-light bg-opacity-50">
+        <!-- فرم ثبت یادداشت داخل باتم شیت -->
+        <div id="topicNoteFormMobile" class="d-none border-bottom pb-3 mb-3 bg-white p-3 rounded-3 border">
+            <input type="hidden" id="topicNoteIdMobile" value="0">
+            <div class="mb-2">
+                <label class="form-label small fw-bold">عنوان یادداشت</label>
+                <input type="text" id="topicNoteTitleMobile" class="form-control form-control-sm" value="<?= htmlspecialchars($activeTopic['topic_title'], ENT_QUOTES) ?>" required>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold">متن یادداشت</label>
+                <textarea id="topicNoteContentMobile" class="form-control form-control-sm" rows="3" placeholder="یادداشت خود را اینجا بنویسید..." required></textarea>
+            </div>
+            <div class="d-flex gap-1 justify-content-end">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCancelTopicNoteMobile" style="font-size:0.75rem;">انصراف</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnSaveTopicNoteMobile" style="font-size:0.75rem;">ذخیره</button>
+            </div>
+        </div>
+
+        <!-- لیست یادداشت‌ها -->
+        <div id="topicNotesListMobile">
+            <!-- با ایجکس پر می‌شود -->
+        </div>
+    </div>
+</div>
+
+<!-- دکمه‌های شناور پایین صفحه در موبایل به صورت Bottom Nav Bar شناور -->
+<div class="mobile-bottom-nav">
+    <!-- دکمه منو (سمت راست در RTL) -->
+    <button type="button" id="btnNavMenu" class="nav-item-btn" onclick="triggerMobileMenu(event)">
+        <i class="bi bi-list"></i>
+        <span>منو</span>
+    </button>
+
+    <!-- دکمه سرفصل‌ها (وسط) -->
+    <button type="button" id="btnNavChapters" class="nav-item-btn" onclick="toggleBottomSheet('chapters-sheet')">
+        <i class="bi bi-collection-play-fill"></i>
+        <span>سرفصل‌ها</span>
+    </button>
+    
+    <!-- دکمه یادداشت (سمت چپ) -->
+    <button type="button" id="btnNavNotes" class="nav-item-btn" onclick="toggleBottomSheet('notes-sheet')">
+        <i class="bi bi-journal-text"></i>
+        <span>یادداشت</span>
+    </button>
+</div>
+
 <script>
     // فعال‌سازی ردیاب تعاملی تالار گفتگوی مبحث درسی (AJAX)
     document.addEventListener('DOMContentLoaded', function() {
         initLessonForum(<?= $topicId ?>, <?= $_SESSION['user_id'] ?>);
         initTopicNotepad();
+        
+        // لیسنر تغییرات کلیک برای همگام‌سازی وضعیت کلاس فعال نوار ناوبری پایین
+        document.addEventListener('click', function() {
+            setTimeout(updateBottomNavActiveState, 50);
+        });
     });
+
+    // مدیریت کلاس فعال در نوار ناوبری پایین موبایل
+    function updateBottomNavActiveState() {
+        const menuBtn = document.getElementById('btnNavMenu');
+        const chaptersBtn = document.getElementById('btnNavChapters');
+        const notesBtn = document.getElementById('btnNavNotes');
+        
+        const appSidebar = document.querySelector('.app-sidebar');
+        const chaptersSheet = document.getElementById('chapters-sheet');
+        const notesSheet = document.getElementById('notes-sheet');
+        
+        if (menuBtn) menuBtn.classList.remove('active');
+        if (chaptersBtn) chaptersBtn.classList.remove('active');
+        if (notesBtn) notesBtn.classList.remove('active');
+        
+        if (appSidebar && appSidebar.classList.contains('show')) {
+            if (menuBtn) menuBtn.classList.add('active');
+        } else if (chaptersSheet && chaptersSheet.classList.contains('show')) {
+            if (chaptersBtn) chaptersBtn.classList.add('active');
+        } else if (notesSheet && notesSheet.classList.contains('show')) {
+            if (notesBtn) notesBtn.classList.add('active');
+        }
+    }
+
+    // منوی ناوبری موبایل (کلیک شبیه‌سازی روی دکمه سایدبار هدر با توقف انتشار کلیک)
+    function triggerMobileMenu(event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        const appSidebar = document.querySelector('.app-sidebar');
+        if (appSidebar) {
+            appSidebar.classList.toggle('show');
+            setTimeout(updateBottomNavActiveState, 10);
+        }
+    }
+
+    // باز و بسته کردن باتم شیت‌ها در موبایل
+    function toggleBottomSheet(sheetId) {
+        const sheet = document.getElementById(sheetId);
+        const overlay = document.getElementById('sheet-overlay');
+        if (sheet && overlay) {
+            overlay.classList.add('show');
+            sheet.classList.add('show');
+            setTimeout(updateBottomNavActiveState, 10);
+        }
+    }
+
+    function closeAllSheets() {
+        const overlay = document.getElementById('sheet-overlay');
+        if (overlay) overlay.classList.remove('show');
+        
+        document.querySelectorAll('.bottom-sheet').forEach(sheet => {
+            sheet.classList.remove('show');
+        });
+        setTimeout(updateBottomNavActiveState, 10);
+    }
 
     function initTopicNotepad() {
         const topicId = <?= (int)$topicId ?>;
         const courseId = <?= (int)$courseId ?>;
+        
+        // دسکتاپ
         const listContainer = document.getElementById('topicNotesList');
         const formContainer = document.getElementById('topicNoteForm');
         const noteIdInput = document.getElementById('topicNoteId');
@@ -500,17 +872,32 @@ if ($activeTopic) {
         const btnCancel = document.getElementById('btnCancelTopicNote');
         const btnSave = document.getElementById('btnSaveTopicNote');
 
+        // موبایل
+        const listContainerMobile = document.getElementById('topicNotesListMobile');
+        const formContainerMobile = document.getElementById('topicNoteFormMobile');
+        const noteIdInputMobile = document.getElementById('topicNoteIdMobile');
+        const noteTitleInputMobile = document.getElementById('topicNoteTitleMobile');
+        const noteContentInputMobile = document.getElementById('topicNoteContentMobile');
+        const btnNewMobile = document.getElementById('btnNewTopicNoteMobile');
+        const btnCancelMobile = document.getElementById('btnCancelTopicNoteMobile');
+        const btnSaveMobile = document.getElementById('btnSaveTopicNoteMobile');
+
         function loadNotes() {
-            listContainer.innerHTML = '<div class="text-center py-3 text-secondary small">در حال بارگذاری یادداشت‌ها...</div>';
+            if (listContainer) listContainer.innerHTML = '<div class="text-center py-3 text-secondary small">در حال بارگذاری یادداشت‌ها...</div>';
+            if (listContainerMobile) listContainerMobile.innerHTML = '<div class="text-center py-3 text-secondary small">در حال بارگذاری یادداشت‌ها...</div>';
+            
             fetch(`../ajax/notepad.php?action=list&note_type=course&course_id=${courseId}&topic_id=${topicId}`)
                 .then(res => res.json())
                 .then(notes => {
+                    const emptyHtml = '<div class="text-center py-3 text-secondary small">یادداشتی برای این مبحث ثبت نشده است.</div>';
                     if (notes.length === 0) {
-                        listContainer.innerHTML = '<div class="text-center py-3 text-secondary small">یادداشتی برای این مبحث ثبت نشده است.</div>';
+                        if (listContainer) listContainer.innerHTML = emptyHtml;
+                        if (listContainerMobile) listContainerMobile.innerHTML = emptyHtml;
                         return;
                     }
-                    listContainer.innerHTML = notes.map(note => `
-                        <div class="border rounded p-2 mb-2 bg-light">
+                    
+                    const listHtml = notes.map(note => `
+                        <div class="border rounded p-2 mb-2 bg-white shadow-sm">
                             <div class="d-flex justify-content-between align-items-start">
                                 <h6 class="fw-bold text-dark small d-block mb-1">${escapeHtml(note.title)}</h6>
                                 <div class="d-flex gap-2">
@@ -521,18 +908,34 @@ if ($activeTopic) {
                             <p class="text-secondary mb-0 mt-1 small" style="white-space: pre-line; font-size:0.8rem; line-height:1.5;">${escapeHtml(note.content)}</p>
                         </div>
                     `).join('');
+                    
+                    if (listContainer) listContainer.innerHTML = listHtml;
+                    if (listContainerMobile) listContainerMobile.innerHTML = listHtml;
                 })
                 .catch(err => {
-                    listContainer.innerHTML = '<div class="text-center py-3 text-danger small">خطا در دریافت یادداشت‌ها</div>';
+                    const errorHtml = '<div class="text-center py-3 text-danger small">خطا در دریافت یادداشت‌ها</div>';
+                    if (listContainer) listContainer.innerHTML = errorHtml;
+                    if (listContainerMobile) listContainerMobile.innerHTML = errorHtml;
                 });
         }
 
         window.editNote = function(id, title, content) {
-            noteIdInput.value = id;
-            noteTitleInput.value = title;
-            noteContentInput.value = content;
-            formContainer.classList.remove('d-none');
-            formContainer.scrollIntoView({ behavior: 'smooth' });
+            // پر کردن دسکتاپ
+            if (noteIdInput) noteIdInput.value = id;
+            if (noteTitleInput) noteTitleInput.value = title;
+            if (noteContentInput) noteContentInput.value = content;
+            if (formContainer) formContainer.classList.remove('d-none');
+            
+            // پر کردن موبایل
+            if (noteIdInputMobile) noteIdInputMobile.value = id;
+            if (noteTitleInputMobile) noteTitleInputMobile.value = title;
+            if (noteContentInputMobile) noteContentInputMobile.value = content;
+            if (formContainerMobile) formContainerMobile.classList.remove('d-none');
+            
+            // سوئیچ صفحه به باتم شیت یادداشت‌ها در صورتی که موبایل باشد
+            if (window.innerWidth < 992) {
+                toggleBottomSheet('notes-sheet');
+            }
         };
 
         window.deleteNote = function(id) {
@@ -554,28 +957,9 @@ if ($activeTopic) {
             }
         };
 
-        btnNew.addEventListener('click', () => {
-            noteIdInput.value = 0;
-            noteTitleInput.value = `<?= htmlspecialchars($activeTopic['topic_title'], ENT_QUOTES) ?>`;
-            noteContentInput.value = '';
-            formContainer.classList.remove('d-none');
-        });
-
-        btnCancel.addEventListener('click', () => {
-            formContainer.classList.add('d-none');
-        });
-
-        btnSave.addEventListener('click', () => {
-            const title = noteTitleInput.value.trim();
-            const content = noteContentInput.value.trim();
-
-            if (!title || !content) {
-                alert('لطفاً عنوان و متن یادداشت را وارد کنید.');
-                return;
-            }
-
+        function saveNoteAPI(id, title, content, form) {
             const formData = new FormData();
-            formData.append('id', noteIdInput.value);
+            formData.append('id', id);
             formData.append('note_type', 'course');
             formData.append('course_id', courseId);
             formData.append('topic_id', topicId);
@@ -589,13 +973,65 @@ if ($activeTopic) {
             .then(res => res.json())
             .then(res => {
                 if (res.success) {
-                    formContainer.classList.add('d-none');
+                    if (form) form.classList.add('d-none');
                     loadNotes();
                 } else {
                     alert(res.message || 'خطا در ذخیره یادداشت');
                 }
             });
-        });
+        }
+
+        // هندلر دسکتاپ
+        if (btnNew) {
+            btnNew.addEventListener('click', () => {
+                noteIdInput.value = 0;
+                noteTitleInput.value = `<?= htmlspecialchars($activeTopic['topic_title'], ENT_QUOTES) ?>`;
+                noteContentInput.value = '';
+                formContainer.classList.remove('d-none');
+            });
+        }
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => {
+                formContainer.classList.add('d-none');
+            });
+        }
+        if (btnSave) {
+            btnSave.addEventListener('click', () => {
+                const title = noteTitleInput.value.trim();
+                const content = noteContentInput.value.trim();
+                if (!title || !content) {
+                    alert('لطفاً عنوان و متن یادداشت را وارد کنید.');
+                    return;
+                }
+                saveNoteAPI(noteIdInput.value, title, content, formContainer);
+            });
+        }
+
+        // هندلر موبایل
+        if (btnNewMobile) {
+            btnNewMobile.addEventListener('click', () => {
+                noteIdInputMobile.value = 0;
+                noteTitleInputMobile.value = `<?= htmlspecialchars($activeTopic['topic_title'], ENT_QUOTES) ?>`;
+                noteContentInputMobile.value = '';
+                formContainerMobile.classList.remove('d-none');
+            });
+        }
+        if (btnCancelMobile) {
+            btnCancelMobile.addEventListener('click', () => {
+                formContainerMobile.classList.add('d-none');
+            });
+        }
+        if (btnSaveMobile) {
+            btnSaveMobile.addEventListener('click', () => {
+                const title = noteTitleInputMobile.value.trim();
+                const content = noteContentInputMobile.value.trim();
+                if (!title || !content) {
+                    alert('لطفاً عنوان و متن یادداشت را وارد کنید.');
+                    return;
+                }
+                saveNoteAPI(noteIdInputMobile.value, title, content, formContainerMobile);
+            });
+        }
 
         function escapeHtml(text) {
             return text
